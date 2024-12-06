@@ -1,6 +1,8 @@
 /**
  * Bike Thing by Ethan Fox and Jennifer Lee for ECE 4180
  * Modified Template of BLE_Client for the Arduino Nano ESP32
+ * Much of the bluetooth communication was adapted for our usecases. 
+ * We have included comments where we have made edits in the bluetooth code.
  */
 
 int upperPackData = 0;
@@ -47,6 +49,7 @@ static void notifyCallback(
   uint8_t* pData,
   size_t length,
   bool isNotify) {
+    // This callback function was modified to receive data in the format which it was sent from the MBED
     Serial.print("Notify callback for characteristic ");
     Serial.print(pBLERemoteCharacteristic->getUUID().toString().c_str());
     Serial.print(" of data length ");
@@ -120,7 +123,8 @@ bool connectToServer() {
 
       pRemoteCharacteristic->registerForNotify(notifyCallback);
     }
-
+    // We added a second bluetooth le characteristic. One for sending and one for receiving.
+    // We ended up not using the first one due to the Blind Spot system not working.
     if (pRemoteCharacteristic2 == nullptr) {
       Serial.print("Failed to find our characteristic UUID: ");
       Serial.println(charUUID2.toString().c_str());
@@ -175,8 +179,10 @@ void setup() {
   
   Serial.println("Starting Arduino BLE Client application...");
 
+  // We add our LEDs here
   FastLED.addLeds<WS2812, LED_PIN_L, GRB>(left_led, NUM_LEDS);
   FastLED.addLeds<WS2812, LED_PIN_R, GRB>(right_led, NUM_LEDS);
+
   BLEDevice::init("");
 
   // Retrieve a Scanner and set the callback we want to use to be informed when we
@@ -192,7 +198,7 @@ void setup() {
   
 } // End of setup.
 
-// This is the Arduino main loop function.
+// Below is the code we have added for the logic behind the blinking lights
 
 bool flip = false;
 int prev_millis = 0;
